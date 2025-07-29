@@ -2,8 +2,7 @@
 Website Images
 
 ## Dashboard
-<img width="2559" height="1284" alt="image" src="https://github.com/user-attachments/assets/4871fca4-33a0-45fd-9fd7-c3511448e9d5" />
-
+<img width="2559" height="1288" alt="image" src="https://github.com/user-attachments/assets/433977b6-eb29-44ae-9fa4-e2130213fb09" />
 
 ## New Patient Registeration
 <img width="554" height="646" alt="image" src="https://github.com/user-attachments/assets/2bfa6bea-a2e8-4bb3-91ed-311b37557143" />
