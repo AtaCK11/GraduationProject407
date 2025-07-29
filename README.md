@@ -18,6 +18,9 @@ I have used ESP32 (with FreeRTOS) while i developed the project. Other parts of 
 
 The project also includes the custom PCB (hopefully the latest revisions), if you dislike using a breadboard (because my connections was  loose all the time).
 
+## Components & More Images
+For components and more images, please go to the directory.
+
 ## 📬 Contact
 If you have questions, suggestions, or bug reports, please, open an issue on GitHub.
 
