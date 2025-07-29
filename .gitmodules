@@ -1,0 +1,3 @@
+[submodule "ATAOS_WATCH"]
+	path = ATAOS_WATCH
+	url = https://github.com/AtaCK11/ATAOS_WATCH

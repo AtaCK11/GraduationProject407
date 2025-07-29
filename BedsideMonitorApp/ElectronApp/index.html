@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Hospital Bedside Monitor</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+    
+    /* Reset and base styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: "Courier New", monospace;
+      background-color: #000000;
+      color: #ffffff;
+      overflow: hidden;
+      height: 100vh;
+    }
+    
+    /* Main container */
+    .monitor {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background-color: #000000;
+    }
+    
+    /* Top status bar */
+    .status-bar {
+      height: 30px;
+      background-color: #000000;
+      border-bottom: 2px solid #444444;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 10px;
+      font-size: 14px;
+    }
+    
+    .monitor-id {
+      color: #cccccc;
+    }
+    
+    .date-time {
+      color: #ffffff;
+    }
+    
+    /* Main content area */
+    .content {
+      display: flex;
+      flex: 1;
+    }
+    
+    /* Waveform area - left side */
+    .waveforms {
+      flex: 5;
+      display: flex;
+      flex-direction: column;
+      border-right: 3px solid #444444;
+      background-color: #000000;
+    }
+    
+    .waveform {
+      position: relative;
+      flex: 1;
+      min-height: 60px;
+      max-height: 350px;
+      border-bottom: 2px solid #444444;
+      background-color: #000000;
+    }
+    
+    .waveform:last-child {
+      border-bottom: none;
+    }
+    
+    .waveform-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 25px;
+      background: linear-gradient(90deg, #222222 0%, #333333 50%, #222222 100%);
+      border-bottom: 1px solid #555555;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 10px;
+      z-index: 10;
+    }
+    
+    .waveform-label {
+      font-size: 14px;
+      font-weight: bold;
+    }
+    
+    .waveform-value {
+      font-size: 14px;
+      font-weight: bold;
+    }
+    
+    .waveform-canvas {
+      width: 100%;
+      height: 100%;
+      margin-top: 25px;
+    }
+    
+    /* Parameters area - right side */
+    .parameters {
+      flex: 2;
+      display: flex;
+      flex-direction: column;
+      min-width: 300px;
+      background-color: #000000;
+    }
+    
+    .parameter-box {
+      height: 110px;
+      border-bottom: 2px solid #444444;
+      padding: 5px;
+      display: flex;
+      flex-direction: column;
+      background-color: #000000;
+    }
+    
+    .parameter-label {
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+    
+    .parameter-value {
+      font-size: 60px;
+      font-weight: bold;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .parameter-unit {
+      font-size: 12px;
+      text-align: right;
+      margin-top: -12px;
+    }
+    
+    /* Patient info area */
+    .patient-info {
+      padding: 8px;
+      border-bottom: 2px solid #444444;
+      font-size: 12px;
+      background-color: #111111;
+    }
+    
+    .patient-info-row {
+      display: flex;
+      margin-bottom: 3px;
+    }
+    
+    .patient-info-label {
+      width: 60px;
+      color: #888888;
+    }
+    
+    .patient-info-value {
+      flex: 1;
+    }
+    
+    /* Body Temperature Trend Section */
+    .temp-trend-section {
+      height: 120px;
+      border-bottom: 2px solid #444444;
+      background-color: #000000;
+    }
+    
+    .temp-trend-header {
+      height: 25px;
+      background: linear-gradient(90deg, #222222 0%, #333333 50%, #222222 100%);
+      border-bottom: 1px solid #555555;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 10px;
+    }
+    
+    .temp-trend-title {
+      font-size: 12px;
+      font-weight: bold;
+      color: #ffff00;
+    }
+    
+    .temp-trend-canvas {
+      width: 100%;
+      height: 95px;
+    }
+    
+    /* Room parameters section */
+    .room-parameters {
+      flex: 1;
+      overflow-y: auto;
+      border-top: 3px solid #444444;
+      background-color: #000000;
+    }
+    
+    .room-parameters-title {
+      padding: 8px 10px;
+      background: linear-gradient(90deg, #222222 0%, #333333 50%, #222222 100%);
+      font-size: 14px;
+      font-weight: bold;
+      color: #ffffff;
+      border-bottom: 2px solid #555555;
+    }
+    
+    .room-parameter-box {
+      height: 60px;
+      border-bottom: 2px solid #333333;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background-color: #000000;
+    }
+    
+    .room-parameter-box:nth-child(even) {
+      background-color: #0a0a0a;
+    }
+    
+    .room-parameter-label {
+      font-size: 12px;
+      margin-bottom: 3px;
+      font-weight: bold;
+    }
+    
+    .room-parameter-value {
+      font-size: 24px;
+      font-weight: bold;
+      text-align: center;
+    }
+    
+    .room-parameter-unit {
+      font-size: 10px;
+      text-align: right;
+      margin-top: 2px;
+    }
+    
+    /* Color coding for parameters */
+    .ecg {
+      color: #00ff00;
+    }
+    
+    .pleth {
+      color: #00ffff;
+    }
+    
+    .resp {
+      color: #ffff00;
+    }
+    
+    .hr {
+      color: #00ff00;
+    }
+    
+    .spo2 {
+      color: #00ffff;
+    }
+    
+    .temp {
+      color: #ffff00;
+    }
+    
+    .room-temp {
+      color: #ffaa00;
+    }
+    
+    .humidity {
+      color: #00aaff;
+    }
+    
+    .co {
+      color: #ff5500;
+    }
+    
+    .alcohol {
+      color: #aa00ff;
+    }
+    
+    .co2 {
+      color: #ff0055;
+    }
+    
+    .toluene {
+      color: #00ff55;
+    }
+    
+    .nh4 {
+      color: #55ffaa;
+    }
+    
+    .acetone {
+      color: #ff55aa;
+    }
+    
+    /* Alarm limits */
+    .alarm-limits {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: #888888;
+    }
+    
+    /* Status indicators */
+    .status-indicators {
+      display: flex;
+      gap: 15px;
+    }
+    
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .indicator-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    
+    .indicator-green {
+      background-color: #00ff00;
+    }
+    
+    .indicator-red {
+      background-color: #ff0000;
+    }
+  </style>
+</head>
+
+<body>
+
+
+<h2>Select Serial Port:
+<select id="portSelector"></select>
+
+<script>
+  const select = document.getElementById('portSelector');
+  for (let i = 0; i <= 12; i++) {
+    const option = document.createElement('option');
+    option.value = i;
+    option.textContent = i;
+    select.appendChild(option);
+  }
+</script>
+
+<button id="connectBtn">Connect</button>
+
+
+</h2>
+  <div class="monitor">
+    <!-- Top status bar -->
+    <div class="status-bar">
+      <div class="monitor-id">BEDSIDE MONITOR v1.0</div>
+      <div class="status-indicators">
+        <div class="status-indicator">
+          <div class="indicator-dot indicator-green"></div>
+          <span>ECG</span>
+        </div>
+        <div class="status-indicator">
+          <div class="indicator-dot indicator-green"></div>
+          <span>SpO2</span>
+        </div>
+        <div class="status-indicator">
+          <div class="indicator-dot indicator-green"></div>
+          <span>RESP</span>
+        </div>
+        <div class="status-indicator">
+          <div class="indicator-dot indicator-green"></div>
+          <span>TEMP</span>
+        </div>
+      </div>
+      <div class="date-time" id="datetime">15-JAN-2024 12:00:00</div>
+    </div>
+    
+    <!-- Main content area -->
+    <div class="content">
+      <!-- Waveforms section - left side -->
+      <div class="waveforms">
+        <!-- ECG waveform -->
+        <div class="waveform">
+          <div class="waveform-header">
+            <div class="waveform-label ecg">ECG - LEAD II</div>
+            <div class="waveform-value ecg" id="ecgRate">72 bpm</div>
+          </div>
+          <canvas id="ecgCanvas" class="waveform-canvas"></canvas>
+        </div>
+        
+        <!-- SpO2 Pleth waveform -->
+        <div class="waveform">
+          <div class="waveform-header">
+            <div class="waveform-label pleth">PLETH - SpO2</div>
+            <div class="waveform-value pleth" id="plethValue">98%</div>
+          </div>
+          <canvas id="plethCanvas" class="waveform-canvas"></canvas>
+        </div>
+        
+        <!-- Respiration waveform -->
+        <div class="waveform">
+          <div class="waveform-header">
+            <div class="waveform-label resp">RESPIRATION</div>
+            <div class="waveform-value resp" id="respRate">16 rpm</div>
+          </div>
+          <canvas id="respCanvas" class="waveform-canvas"></canvas>
+        </div>
+      </div>
+      
+      <!-- Parameters section - right side -->
+      <div class="parameters">
+        <!-- Patient information -->
+        <div class="patient-info">
+          <div class="patient-info-row">
+            <div class="patient-info-label">NAME:</div>
+            <div class="patient-info-value">TEST TEST</div>
+          </div>
+          <div class="patient-info-row">
+            <div class="patient-info-label">ID:</div>
+            <div class="patient-info-value">123456789</div>
+          </div>
+          <div class="patient-info-row">
+            <div class="patient-info-label">BED:</div>
+            <div class="patient-info-value">Y-108</div>
+          </div>
+        </div>
+        
+        <!-- Heart Rate parameter -->
+        <div class="parameter-box">
+          <div class="parameter-label hr">HR</div>
+          <div class="alarm-limits">
+            <span>50</span>
+            <span>120</span>
+          </div>
+          <div class="parameter-value hr" id="hrValue">72</div>
+          <div class="parameter-unit">bpm</div>
+        </div>
+        
+        <!-- SpO2 parameter -->
+        <div class="parameter-box">
+          <div class="parameter-label spo2">SpO2</div>
+          <div class="alarm-limits">
+            <span>90</span>
+            <span>--</span>
+          </div>
+          <div class="parameter-value spo2" id="spo2Value">98</div>
+          <div class="parameter-unit">%</div>
+        </div>
+        
+        <!-- Temperature parameter -->
+        <div class="parameter-box">
+          <div class="parameter-label temp">TEMP</div>
+          <div class="alarm-limits">
+            <span>36.0</span>
+            <span>38.0</span>
+          </div>
+          <div class="parameter-value temp" id="tempValue">36.8</div>
+          <div class="parameter-unit">°C</div>
+        </div>
+        
+        <!-- Respiration parameter -->
+        <div class="parameter-box">
+          <div class="parameter-label resp">RESP</div>
+          <div class="alarm-limits">
+            <span>8</span>
+            <span>25</span>
+          </div>
+          <div class="parameter-value resp" id="respValue">16</div>
+          <div class="parameter-unit">rpm</div>
+        </div>
+        
+        <!-- Body Temperature Trend Section -->
+        <div class="temp-trend-section">
+          <div class="temp-trend-header">
+            <div class="temp-trend-title">BODY TEMPERATURE TREND (1 HOUR)</div>
+            <div class="temp-trend-title" id="tempTrendValue">36.8°C</div>
+          </div>
+          <canvas id="tempTrendCanvas" class="temp-trend-canvas"></canvas>
+        </div>
+        
+        <!-- Room Parameters Section -->
+        <div class="room-parameters">
+          <div class="room-parameters-title">ROOM PARAMETERS</div>
+          
+          <!-- Room Temperature -->
+          <div class="room-parameter-box">
+            <div class="room-parameter-label room-temp">ROOM TEMP</div>
+            <div class="room-parameter-value room-temp" id="roomTempValue">23.5</div>
+            <div class="room-parameter-unit">°C</div>
+          </div>
+          
+          <!-- Humidity -->
+          <div class="room-parameter-box">
+            <div class="room-parameter-label humidity">HUMIDITY</div>
+            <div class="room-parameter-value humidity" id="humidityValue">45</div>
+            <div class="room-parameter-unit">%</div>
+          </div>
+          
+          <!-- CO -->
+          <div class="room-parameter-box">
+            <div class="room-parameter-label co">CO</div>
+            <div class="room-parameter-value co" id="coValue">0.5</div>
+            <div class="room-parameter-unit">ppm</div>
+          </div>
+          
+          <!-- CO2 -->
+          <div class="room-parameter-box">
+            <div class="room-parameter-label co2">CO2</div>
+            <div class="room-parameter-value co2" id="co2Value">450</div>
+            <div class="room-parameter-unit">ppm</div>
+          </div>
+          
+          <!-- Alcohol -->
+          <div class="room-parameter-box">
+            <div class="room-parameter-label alcohol">ALCOHOL</div>
+            <div class="room-parameter-value alcohol" id="alcoholValue">0.2</div>
+            <div class="room-parameter-unit">ppm</div>
+          </div>
+          
+          <!-- Toluene -->
+          <div class="room-parameter-box">
+            <div class="room-parameter-label toluene">TOLUENE</div>
+            <div class="room-parameter-value toluene" id="tolueneValue">0.1</div>
+            <div class="room-parameter-unit">ppm</div>
+          </div>
+          
+          <!-- NH4 -->
+          <div class="room-parameter-box">
+            <div class="room-parameter-label nh4">NH4</div>
+            <div class="room-parameter-value nh4" id="nh4Value">0.3</div>
+            <div class="room-parameter-unit">ppm</div>
+          </div>
+          
+          <!-- Acetone -->
+          <div class="room-parameter-box">
+            <div class="room-parameter-label acetone">ACETONE</div>
+            <div class="room-parameter-value acetone" id="acetoneValue">0.4</div>
+            <div class="room-parameter-unit">ppm</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    console.log('electronAPI:', window.electronAPI);
+	const SensorTags = {
+	  BODY_ECG: 1,
+	  BODY_HR: 2,
+	  BODY_BO2: 3,
+	  ROOM_TEMP: 4,
+	  ROOM_HUM: 5,
+	  BODY_TEMP: 6,
+	  ROOM_CO: 7,
+	  ROOM_ALCOHOL: 8,
+	  ROOM_CO2: 9,
+	  ROOM_TOULENE: 10,
+	  ROOM_NH4: 11,
+	  ROOM_ACETONE: 12,
+    BODY_ECG_HR: 13
+	};
+
+    // Update date and time
+    function updateDateTime() {
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      }).toUpperCase();
+      const timeStr = now.toLocaleTimeString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+      document.getElementById('datetime').textContent = dateStr + ' ' + timeStr;
+    }
+    setInterval(updateDateTime, 1000);
+    updateDateTime();
+    
+    // Initialize canvases
+    const ecgCanvas = document.getElementById('ecgCanvas');
+    const plethCanvas = document.getElementById('plethCanvas');
+    const respCanvas = document.getElementById('respCanvas');
+    const tempTrendCanvas = document.getElementById('tempTrendCanvas');
+    
+    // Set canvas dimensions
+    function setCanvasDimensions(canvas) {
+      const container = canvas.parentElement;
+      canvas.width = container.clientWidth;
+      canvas.height = container.clientHeight - 25; // Account for header
+    }
+    
+    function setTempTrendCanvasDimensions() {
+      const canvas = tempTrendCanvas;
+      const container = canvas.parentElement;
+      canvas.width = container.clientWidth;
+      canvas.height = container.clientHeight;
+    }
+    
+    setCanvasDimensions(ecgCanvas);
+    setCanvasDimensions(plethCanvas);
+    setCanvasDimensions(respCanvas);
+    setTempTrendCanvasDimensions();
+    
+    // Get canvas contexts
+    const ecgCtx = ecgCanvas.getContext('2d');
+    const plethCtx = plethCanvas.getContext('2d');
+    const respCtx = respCanvas.getContext('2d');
+    const tempTrendCtx = tempTrendCanvas.getContext('2d');
+    
+    // Initialize data arrays with centered values
+    const ecgData = Array(300).fill(0);
+    const plethData = Array(300).fill(0);
+    const respData = Array(300).fill(0);
+    const tempTrendData = Array(60).fill(36.8);
+    
+    // Draw grid function
+    function drawGrid(ctx, width, height) {
+      // Clear canvas
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, width, height);
+      
+      // Draw center line (more visible)
+      ctx.strokeStyle = '#444444';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, height / 2);
+      ctx.lineTo(width, height / 2);
+      ctx.stroke();
+      
+      // Draw major grid lines
+      ctx.strokeStyle = '#333333';
+      ctx.lineWidth = 1;
+      
+      // Vertical major grid lines
+      for (let x = 0; x < width; x += 50) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+      
+      // Horizontal major grid lines
+      for (let y = 0; y < height; y += 25) {
+        if (Math.abs(y - height / 2) > 2) { // Skip if too close to center line
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(width, y);
+          ctx.stroke();
+        }
+      }
+      
+      // Draw minor grid lines
+      ctx.strokeStyle = '#222222';
+      ctx.lineWidth = 0.5;
+      
+      // Vertical minor grid lines
+      for (let x = 0; x < width; x += 10) {
+        if (x % 50 !== 0) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, height);
+          ctx.stroke();
+        }
+      }
+      
+      // Horizontal minor grid lines
+      for (let y = 0; y < height; y += 5) {
+        if (y % 25 !== 0 && Math.abs(y - height / 2) > 2) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(width, y);
+          ctx.stroke();
+        }
+      }
+    }
+    
+    // Draw waveform function - now centered
+    function drawWaveform(ctx, data, color, width, height) {
+      drawGrid(ctx, width, height);
+      
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      
+      const step = width / data.length;
+      const centerY = height / 2;
+      
+      for (let i = 0; i < data.length; i++) {
+        const x = i * step;
+        const y = centerY + data[i]; // Add to centerY to center the waveform
+        
+        if (i === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      }
+      
+      ctx.stroke();
+    }
+    
+    // Draw trend graph function
+    function drawTrendGraph(ctx, data, color, width, height, minVal, maxVal, unit) {
+      drawGrid(ctx, width, height);
+      
+      // Draw scale labels
+      ctx.fillStyle = '#888888';
+      ctx.font = '10px Courier New';
+      ctx.fillText(maxVal + unit, 5, 15);
+      ctx.fillText(minVal + unit, 5, height - 5);
+      
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      
+      const step = width / data.length;
+      
+      for (let i = 0; i < data.length; i++) {
+        const x = i * step;
+        const normalizedValue = (data[i] - minVal) / (maxVal - minVal);
+        const y = height - (normalizedValue * height);
+        
+        if (i === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      }
+      
+      ctx.stroke();
+      
+      // Draw current value point
+      if (data.length > 0) {
+        const lastValue = data[data.length - 1];
+        const normalizedValue = (lastValue - minVal) / (maxVal - minVal);
+        const y = height - (normalizedValue * height);
+        const x = (data.length - 1) * step;
+        
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(x, y, 3, 0, 2 * Math.PI);
+        ctx.fill();
+      }
+    }
+    
+    // Generate ECG waveform point - centered around 0
+    function generateECGPoint(time) {
+      let value = 0;
+      
+      const heartPhase = time % 1;
+      
+      if (heartPhase < 0.05) {
+        // P wave
+        value = -8 * Math.sin(heartPhase * Math.PI * 20);
+      } else if (heartPhase >= 0.15 && heartPhase < 0.2) {
+        // QRS complex
+        const qrsPhase = (heartPhase - 0.15) / 0.05;
+        if (qrsPhase < 0.2) {
+          value = 3;
+        } else if (qrsPhase < 0.6) {
+          value = -40 * Math.sin((qrsPhase - 0.2) * Math.PI * 2.5);
+        } else {
+          value = 6;
+        }
+      } else if (heartPhase >= 0.35 && heartPhase < 0.45) {
+        // T wave
+        const tPhase = (heartPhase - 0.35) / 0.1;
+        value = -10 * Math.sin(tPhase * Math.PI);
+      }
+      
+      value += (Math.random() - 0.5) * 2;
+      return value;
+    }
+    
+    // Generate pleth waveform point - centered around 0
+    function generatePlethPoint(time) {
+      const heartPhase = time % 1;
+      let value = 0;
+      
+      if (heartPhase < 0.3) {
+        value = -20 * Math.pow(Math.sin(heartPhase * Math.PI / 0.3), 2);
+      } else if (heartPhase < 0.5) {
+        const notchPhase = (heartPhase - 0.3) / 0.2;
+        value = -8 - 3 * Math.sin(notchPhase * Math.PI);
+      } else {
+        const runoffPhase = (heartPhase - 0.5) / 0.5;
+        value = -8 * (1 - runoffPhase);
+      }
+      
+      value += (Math.random() - 0.5) * 2;
+      return value;
+    }
+    
+    // Generate respiration waveform point - centered around 0
+    function generateRespPoint(time) {
+      const respRate = 16; // breaths per minute
+      const respPeriod = 60 / respRate;
+      const respPhase = (time % respPeriod) / respPeriod;
+      
+      let value = -15 * Math.sin(respPhase * Math.PI * 2);
+      value += (Math.random() - 0.5) * 2;
+      
+      return value;
+    }
+    
+    // Animation time
+    let time = 0;
+    
+    // Current vital signs values
+    let currentHR = 72;
+    let currentSpO2 = 98;
+    let currentTemp = 36.8;
+    let currentResp = 16;
+	
+	let updatedHR = 86;
+    let updatedSpO2 = 98;
+    let updatedTemp = 36.3;
+    let updatedResp = 16;
+	
+	let updatedRoomTemp = 24.5;
+	let updatedRoomHum = 48;
+	let updatedRoomCO = 0.3;
+	let updatedRoomCO2 = 405.1;
+	let updatedRoomAlcohol = 0.33;
+	let updatedRoomToluene = 0.08;
+	let updatedRoomNH4 = 0.27;
+	let updatedRoomAcetone = 0.41;
+    
+    // Update waveforms
+    function updateWaveforms() {
+      time += 0.01;
+      
+      // Update ECG
+      ecgData.push(generateECGPoint(time));
+      ecgData.shift();
+      drawWaveform(ecgCtx, ecgData, '#00ff00', ecgCanvas.width, ecgCanvas.height);
+      
+      // Update Pleth
+      plethData.push(generatePlethPoint(time));
+      plethData.shift();
+      drawWaveform(plethCtx, plethData, '#00ffff', plethCanvas.width, plethCanvas.height);
+      
+      // Update Respiration
+      respData.push(generateRespPoint(time));
+      respData.shift();
+      drawWaveform(respCtx, respData, '#ffff00', respCanvas.width, respCanvas.height);
+      
+      // Update temperature trend (slower moving)
+      const tempTrendPoint = 36.5 + 0.5 * Math.sin(time / 10) + (Math.random() - 0.5) * 0.2;
+      
+      // Add new temp trend point every 100 cycles (simulating 1 minute intervals)
+      if (Math.floor(time * 100) % 100 === 0) {
+        tempTrendData.push(tempTrendPoint);
+        tempTrendData.shift();
+        currentTemp = tempTrendPoint;
+      }
+      
+      drawTrendGraph(tempTrendCtx, tempTrendData, '#ffff00', tempTrendCanvas.width, tempTrendCanvas.height, 35, 39, '°C');
+    }
+    
+    // Update vital signs
+    function updateVitalSigns() {
+      // Heart Rate (60-100 normal)
+      currentHR = updatedHR;
+      document.getElementById('hrValue').textContent = currentHR;
+      document.getElementById('ecgRate').textContent = currentHR + ' bpm';
+      
+      // SpO2 (95-100 normal)
+      currentSpO2 = updatedSpO2;
+      document.getElementById('spo2Value').textContent = currentSpO2;
+      document.getElementById('plethValue').textContent = currentSpO2 + '%';
+      
+      // Temperature
+	  currentTemp = updatedTemp;
+      document.getElementById('tempValue').textContent = currentTemp.toFixed(1);
+      document.getElementById('tempTrendValue').textContent = currentTemp.toFixed(1) + '°C';
+      
+      // Respiratory Rate (12-20 normal)
+      currentResp = updatedResp;
+      document.getElementById('respValue').textContent = currentResp;
+      document.getElementById('respRate').textContent = currentResp + ' rpm';
+    }
+    
+    // Update room parameters
+    function updateRoomParameters() {
+      // Room Temperature (20-25°C normal)
+      const roomTemp = updatedRoomTemp;
+      document.getElementById('roomTempValue').textContent = roomTemp;
+      
+      // Humidity (40-60% normal)
+      const humidity = updatedRoomHum;
+      document.getElementById('humidityValue').textContent = humidity;
+      
+      // CO (0-1 ppm normal)
+      const co = updatedRoomCO;
+      document.getElementById('coValue').textContent = co;
+      
+      // CO2 (400-1000 ppm normal)
+      const co2 = updatedRoomCO2;
+      document.getElementById('co2Value').textContent = co2;
+      
+      // Alcohol (0-0.5 ppm normal)
+      const alcohol = updatedRoomAlcohol;
+      document.getElementById('alcoholValue').textContent = alcohol;
+      
+      // Toluene (0-0.2 ppm normal)
+      const toluene = updatedRoomToluene;
+      document.getElementById('tolueneValue').textContent = toluene;
+      
+      // NH4 (0-0.5 ppm normal)
+      const nh4 = updatedRoomNH4;
+      document.getElementById('nh4Value').textContent = nh4;
+      
+      // Acetone (0-0.5 ppm normal)
+      const acetone = updatedRoomAcetone;
+      document.getElementById('acetoneValue').textContent = acetone;
+    }
+    
+    // Handle window resize
+    window.addEventListener('resize', function() {
+      setCanvasDimensions(ecgCanvas);
+      setCanvasDimensions(plethCanvas);
+      setCanvasDimensions(respCanvas);
+      setTempTrendCanvasDimensions();
+    });
+    
+    // Start animations
+    setInterval(updateWaveforms, 50); // 20 FPS
+    setInterval(updateVitalSigns, 3000); // Update every 3 seconds
+    setInterval(updateRoomParameters, 5000); // Update every 5 seconds
+    
+    // Initial update
+    updateVitalSigns();
+    updateRoomParameters();
+	
+	// FUNCTIONS
+	
+	const selector = document.getElementById('portSelector');
+
+    document.getElementById('connectBtn').addEventListener('click', () => {
+      const selectedPort = document.getElementById('portSelector').value;
+      if (selectedPort) {
+        window.electronAPI.connectToPort(selectedPort);
+      }
+    });
+
+	window.electronAPI.onSerialData(({ sensorTag, sensorValue }) => {
+      console.log("SENSOR_TAG: " + sensorTag)
+	  console.log("SENSOR_VALUE: " + sensorValue)
+	  
+	  if (sensorTag == SensorTags['BODY_ECG']) {
+	    //1: 'BODY_ECG',
+      if (Array.isArray(sensorValue)) {
+          setEcgData((prev) => {
+            const newData = [...prev, ...sensorValue];
+            return newData.slice(-200); // Keep last 200 points
+          });
+        }
+		  console.log("updated:" + sensorTag)
+	  }
+	  else if (sensorTag == SensorTags['BODY_HR'] || sensorTag == SensorTags['BODY_ECG_HR']) {
+	    //2: 'BODY_HR',
+		updatedHR = sensorValue;
+		console.log("updated:" + sensorTag)
+	  }
+	  else if (sensorTag == SensorTags["BODY_BO2"]) {
+		//3: 'BODY_BO2',
+		updatedSpO2 = sensorValue.toFixed(2);
+		console.log("updated:" + sensorTag)
+	  }
+	  else if (sensorTag == SensorTags["ROOM_TEMP"]) {
+		//4: 'ROOM_TEMP',
+		updatedRoomTemp = sensorValue.toFixed(2);
+		console.log("updated:" + sensorTag)
+	  }
+	  else if (sensorTag == SensorTags['ROOM_HUM']) {
+		//5: 'ROOM_HUM'
+		updatedRoomHum = sensorValue.toFixed(2);
+		console.log("updated:" + sensorTag)
+	  }
+	  else if (sensorTag == SensorTags['BODY_TEMP']) {
+		//6: 'BODY_TEMP',
+		updatedTemp = sensorValue;
+		console.log("updated:" + sensorTag)
+	  }
+	  else if (sensorTag == SensorTags['ROOM_CO']) {
+		//7: 'ROOM_CO',
+		updatedRoomCO = sensorValue.toFixed(2);
+		console.log("updated:" + sensorTag)
+	  }
+	  else if (sensorTag == SensorTags['ROOM_ALCOHOL']) {
+		//8: 'ROOM_ALCOHOL',
+		updatedRoomAlcohol = sensorValue.toFixed(2);
+		console.log("updated:" + sensorTag)
+	  }
+	  else if (sensorTag == SensorTags['ROOM_CO2']) {
+		//9: 'ROOM_CO2',
+		updatedRoomCO2 = sensorValue.toFixed(2);;
+		console.log("updated:" + sensorTag)
+	  }
+	  else if (sensorTag == SensorTags['ROOM_TOULENE']) {
+		//10: 'ROOM_TOULENE',
+		updatedRoomToluene = sensorValue.toFixed(2);
+		console.log("updated:" + sensorTag)
+	  }
+	  else if (sensorTag == SensorTags['ROOM_NH4']) {
+		//11: 'ROOM_NH4',
+		updatedRoomNH4 = sensorValue.toFixed(2);
+		console.log("updated:" + sensorTag)
+	  }
+	  else if (sensorTag == SensorTags['ROOM_ACETONE']) {
+		//12: 'ROOM_ACETONE',
+		updatedRoomAcetone = sensorValue.toFixed(2);
+		console.log("updated:" + sensorTag)
+	  }
+	  
+	  
+    });
+	
+  </script>
+</body>
+</html>
