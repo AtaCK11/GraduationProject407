@@ -20,3 +20,10 @@ The project also includes the custom PCB (hopefully the latest revisions), if yo
 
 ## 📬 Contact
 If you have questions, suggestions, or bug reports, please, open an issue on GitHub.
+
+## Images
+### Bedside Monitor App
+<img width="1892" height="1029" alt="image" src="https://github.com/user-attachments/assets/1d47640f-8c26-44ec-a266-efead26e3ef5" />
+
+### Website ECG Example
+<img width="2559" height="1286" alt="image" src="https://github.com/user-attachments/assets/4374a343-2d43-43d2-8b0f-6607902dbd75" />
