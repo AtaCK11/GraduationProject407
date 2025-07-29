@@ -27,3 +27,9 @@ If you have questions, suggestions, or bug reports, please, open an issue on Git
 
 ### Website ECG Example
 <img width="2559" height="1286" alt="image" src="https://github.com/user-attachments/assets/4374a343-2d43-43d2-8b0f-6607902dbd75" />
+
+### Watch PCB
+<img width="750" height="642" alt="image" src="https://github.com/user-attachments/assets/6eff9ca8-f7d0-44d3-89cb-06b98263ba01" />
+
+### Medical Device PCB
+<img width="756" height="678" alt="image" src="https://github.com/user-attachments/assets/8b88b5c8-6dde-4d40-9a83-1c8217d8b9f9" />
